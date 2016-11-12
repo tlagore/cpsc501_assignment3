@@ -1,5 +1,5 @@
 package serializer;
 
-public class Serializer {
+public class ArrayField {
 
 }
