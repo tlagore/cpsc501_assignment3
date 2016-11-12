@@ -10,6 +10,13 @@ public class ObjectHandler {
 	private Object _RootObject;
 	private Vector<ClassField> _Fields;
 	
+	/**
+	 * attempts to instantiates an object for a specified class name and generate the field information for the new object
+	 * @param className
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 * @throws InstantiationException
+	 */
 	public ObjectHandler(String className) throws ClassNotFoundException, IllegalAccessException, InstantiationException
 	{
 		_Fields = new Vector<ClassField>();
@@ -29,6 +36,19 @@ public class ObjectHandler {
 		{
 			throw ex;
 		}
+	}
+	
+	/**
+	 * Takes in an already instantiated object and generates field information for the object
+	 * @param obj
+	 */
+	public ObjectHandler(Object obj)
+	{
+		_Fields = new Vector<ClassField>();
+		_RootObject = obj;
+		_RootClass = obj.getClass();
+		generateFields(_RootClass, false);
+		generateInheritedFields();
 	}
 	
 	/**

@@ -79,24 +79,39 @@ public class ObjectSerializerClient {
 	 */
 	public void setField(ClassField classField, String delimiter)
 	{
+		ObjectHandler objHandler;
+		
 		if(classField instanceof ArrayField){
 			//handle array
 		}else if(classField instanceof ObjectField){
-			ObjectHandler objHandler = getObjectHandler(classField.getTypeName());
-			instantiateObjectFields(objHandler, delimiter + DELIMITER);				
+			Object obj = classField.getValue();
+			
+			//if object has not been initialize yet, create new object
+			if (obj == null)
+			{
+				objHandler = getObjectHandler(classField.getTypeName());
+				setObjectValue(classField, objHandler.getRootObject());	
+			}else
+				objHandler = new ObjectHandler(obj);
+			
+			instantiateObjectFields(objHandler, delimiter + DELIMITER);
 		}else if(classField instanceof PrimitiveField)
 		{
-			System.out.println("primitive detected");
-			try{
-				classField.getField().setAccessible(true);
-				classField.getField().set(classField.getParentObject(), (Object)(new Integer(5)));
-			}catch(Exception ex)
-			{
-				System.out.println("Error accessing variable");
-			}
+			setObjectValue(classField, (Object)(new Integer(5)));
 		}else
 		{
 			//handle collection
+		}
+	}
+	
+	public void setObjectValue(ClassField classField, Object value)
+	{
+		//we don't set accessible true because the ClassField automatically sets accessible to true
+		try{
+			classField.getField().set(classField.getParentObject(), value);
+		}catch(Exception ex)
+		{
+			System.out.println("Error setting field. " + ex.getMessage());
 		}
 	}
 		

@@ -11,6 +11,7 @@ public class ClassField {
 	public ClassField(Object parent, Field field, boolean inherited)
 	{
 		_Field = field;
+		_Field.setAccessible(true);
 		_Inherited = inherited;
 		_ParentObject = parent;
 	}
@@ -36,5 +37,17 @@ public class ClassField {
 
 	public Field getField() {
 		return _Field;
+	}
+	
+	public Object getValue(){
+		Object obj = null;
+		try{
+			obj = _Field.get(_ParentObject);
+		}catch(Exception ex)
+		{
+			System.out.println("Error accessing variable");
+		}
+		
+		return obj;
 	}
 }
