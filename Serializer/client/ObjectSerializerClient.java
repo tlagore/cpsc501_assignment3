@@ -8,24 +8,27 @@ import serializer.ObjectHandler;
 
 public class ObjectSerializerClient {
 	private Menu _MainMenu;
-	private Integer _ExitOption;
 	
 	public ObjectSerializerClient()
 	{
 		
 	}
 	
+	/**
+	 * 
+	 */
 	public void run()
 	{
 		String[] classes = new String[] { "classes.ClassA", "classes.ClassB", "classes.ClassC" };
 		Scanner keyboard = new Scanner(System.in);
 		Integer choice;
 		
-		initializeMainMenu(classes);
+		_MainMenu = new Menu("Welcome to the Object Serializer. Please choose an object to instantiate", System.in, System.out);
+		initializeMenu(classes, _MainMenu);
 		
 		_MainMenu.displayTitle();
-		choice = _MainMenu.displayMenuGetOption();
-		while(choice != _ExitOption)
+		choice = getMenuOption(_MainMenu);
+		while(choice != _MainMenu.getCancelOption() && choice != -1)
 		{
 			try{
 				ObjectHandler objHandler = new ObjectHandler(classes[choice]);
@@ -42,7 +45,7 @@ public class ObjectSerializerClient {
 				System.out.println("Class not found. Please ensure that the class exists.");
 			}
 			_MainMenu.displayTitle();
-			choice = _MainMenu.displayMenuGetOption();
+			choice = getMenuOption(_MainMenu);
 		}
 		
 		System.out.println("Thank you for using the Object Serializer.");
@@ -51,46 +54,68 @@ public class ObjectSerializerClient {
 		keyboard.close();
 	}
 	
+	/**
+	 * 
+	 * @param objHandler
+	 */
 	public void instantiateObjectFields(ObjectHandler objHandler)
 	{
 		Menu fieldMenu = new Menu("Set fields for " + objHandler.getRootClass().getName(), System.in, System.out);
 		Vector<ClassField> fields = objHandler.getFields();
-		Integer choice,
-			exitOption;
-		int i;
+		Integer choice;
 		
-		for(i = 0; i < fields.size(); i++){
-			fieldMenu.addOption(i, fields.elementAt(i).getTypeName() + " " + fields.elementAt(i).getName());
-		}
-		
-		fieldMenu.addOption(i, "Exit");
-		exitOption = i;
+		initializeMenu(objHandler.getFieldNames(), fieldMenu);
 		
 		fieldMenu.displayTitle();
-		choice = fieldMenu.displayMenuGetOption();
+		choice = getMenuOption(fieldMenu);
 		
-		while(choice != exitOption)
+		while(choice != fieldMenu.getCancelOption() && choice != -1)
 		{
 			
 		
 			fieldMenu.displayTitle();
-			choice = fieldMenu.displayMenuGetOption();
+			choice = getMenuOption(fieldMenu);
 		}
-		
 	}
 	
-	public void initializeMainMenu(String[] options)
+	/**
+	 * 
+	 * @param menu
+	 * @return
+	 */
+	public Integer getMenuOption(Menu menu)
 	{
-		_MainMenu = new Menu("Welcome to the Object Serializer. Please choose an object to instantiate.", System.in, System.out);
+		Integer choice = -1;
+		try{
+			choice = menu.displayMenuGetOption();
+		}catch(NoMenuOptionsException ex)
+		{
+			System.out.println(ex.getMessage());
+		}
+		
+		return choice;
+	}
+	
+	/**
+	 * 
+	 * @param options
+	 * @param menu
+	 */
+	public void initializeMenu(String[] options, Menu menu){
 		int i;
 		
 		for (i = 0; i < options.length; i++)
-			_MainMenu.addOption(i, options[i]);
+			menu.addOption(i, options[i]);
 		
-		_MainMenu.addOption(i, "Exit");
-		_ExitOption = i;
+		menu.addOption(i, "Exit");
+		menu.setCancelOption(i);
 	}
-	
+
+	/**
+	 * 
+	 * @param message
+	 * @return
+	 */
 	public Integer getInt(String message)
 	{
 		Scanner keyboard = new Scanner(System.in);

@@ -12,6 +12,7 @@ public class Menu implements Closeable {
 	private HashMap<Integer, String> _Options;
 	private Scanner _Input;
 	private PrintStream _Output;
+	private Integer _CancelOption;
 	
 	public Menu(String title, InputStream is, PrintStream os)
 	{
@@ -20,6 +21,7 @@ public class Menu implements Closeable {
 		_Options = new HashMap<Integer, String>();
 		_Input = new Scanner(is);
 		_Output = os;
+		_CancelOption = -1;
 	}
 	
 	/**
@@ -34,10 +36,20 @@ public class Menu implements Closeable {
 		}
 	}
 	
-	public Integer displayMenuGetOption()
+	/**
+	 * displays the menu and prompts for a choice.
+	 * 
+	 * @return the menu choice, or -1 if there are no options associated with the menu
+	 */
+	public Integer displayMenuGetOption() throws NoMenuOptionsException
 	{
-		displayMenu();
-		return getOption("Enter a choice: ");
+		if (_Options.size() > 0)
+		{
+			displayMenu();
+			return getOption("Enter a choice: ");
+		}else
+			throw new NoMenuOptionsException("Menu has no options. Add options before calling this function.");
+		
 	}
 	
 	public void displayMenu()
@@ -85,5 +97,23 @@ public class Menu implements Closeable {
 		}catch(Exception ex){
 			throw new IOException(ex.getMessage());
 		}
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public Integer getCancelOption()
+	{
+		return _CancelOption;
+	}
+	
+	/**
+	 * 
+	 * @param option
+	 */
+	public void setCancelOption(Integer option)
+	{
+		_CancelOption = option;
 	}
 }

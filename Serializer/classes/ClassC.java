@@ -1,5 +1,5 @@
 package classes;
 
-public class ClassC {
+public class ClassC extends ClassA{
 	private int[] myArr;
 }

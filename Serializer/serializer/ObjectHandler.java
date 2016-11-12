@@ -102,6 +102,19 @@ public class ObjectHandler {
 		return _Fields;
 	}
 	
+	public String[] getFieldNames()
+	{
+		int i;
+		String [] fieldNames = new String[_Fields.size()];
+		for(i = 0; i < _Fields.size(); i++)
+		{
+			fieldNames[i] = _Fields.elementAt(i).getTypeName() + " " + _Fields.elementAt(i).getName() 
+					+ (_Fields.elementAt(i).isInherited() ? " (Inherited)" : "");
+		}
+		
+		return fieldNames;
+	}
+	
 	public Class getRootClass()
 	{
 		return _RootClass;
