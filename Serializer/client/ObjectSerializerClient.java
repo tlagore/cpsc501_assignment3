@@ -118,7 +118,7 @@ public class ObjectSerializerClient {
 		Field field = classField.getField();
 		if (field.getType().isArray())
 		{
-			Integer size = getInt("Please enter array size", delimiter);
+			Integer size = getInt("Please enter array size: ", delimiter);
 			try{
 				field.set(classField.getParentObject(), Array.newInstance(field.getType().getComponentType(), size));
 			}catch(Exception ex)
@@ -329,7 +329,7 @@ public class ObjectSerializerClient {
 			}
 		}while(choice == -1);
 		
-		keyboard.close();
+		//keyboard.close();
 		
 		return choice;
 	}
