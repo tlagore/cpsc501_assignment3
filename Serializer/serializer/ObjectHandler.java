@@ -12,6 +12,7 @@ public class ObjectHandler {
 	
 	public ObjectHandler(String className) throws ClassNotFoundException, IllegalAccessException, InstantiationException
 	{
+		_Fields = new Vector<ClassField>();
 		try{
 			_RootClass = Class.forName(className);
 			_RootObject = _RootClass.newInstance();
@@ -37,7 +38,7 @@ public class ObjectHandler {
 	 */
 	public void generateFields(Class cl, boolean inherited)
 	{
-		Field[] fields = _RootClass.getDeclaredFields();
+		Field[] fields = cl.getDeclaredFields();
 		for (int i = 0; i < fields.length; i ++)
 		{
 			//Array field
@@ -94,6 +95,16 @@ public class ObjectHandler {
 	public Object getRootObject()
 	{
 		return _RootObject;
+	}
+	
+	public Vector<ClassField> getFields()
+	{
+		return _Fields;
+	}
+	
+	public Class getRootClass()
+	{
+		return _RootClass;
 	}
 	
 }
