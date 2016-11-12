@@ -1,5 +1,5 @@
 package classes;
 
 public class ClassC extends ClassA{
-	private int[] myArr;
+	private int[][] myArr = new int[][]{{1,2}, {3,4}, {5,6}};
 }

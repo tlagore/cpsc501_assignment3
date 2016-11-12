@@ -1,5 +1,7 @@
 package client;
 
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
 import java.util.Scanner;
 import java.util.Vector;
 
@@ -80,12 +82,18 @@ public class ObjectSerializerClient {
 	public void setField(ClassField classField, String delimiter)
 	{
 		ObjectHandler objHandler;
+		Object obj = classField.getValue();
 		
 		if(classField instanceof ArrayField){
-			//handle array
-		}else if(classField instanceof ObjectField){
-			Object obj = classField.getValue();
+			if (obj == null)
+			{
+				createArray(classField, delimiter);
+			}else
+			{
+				//set array values	
+			}
 			
+		}else if(classField instanceof ObjectField){			
 			//if object has not been initialize yet, create new object
 			if (obj == null)
 			{
@@ -97,11 +105,140 @@ public class ObjectSerializerClient {
 			instantiateObjectFields(objHandler, delimiter + DELIMITER);
 		}else if(classField instanceof PrimitiveField)
 		{
-			setObjectValue(classField, (Object)(new Integer(5)));
+			setPrimitiveValue(classField, delimiter);
 		}else
 		{
 			//handle collection
 		}
+	}
+	
+	public void createArray(ClassField classField, String delimiter)
+	{
+		//ensure handed in class is an array
+		Field field = classField.getField();
+		if (field.getType().isArray())
+		{
+			Integer size = getInt("Please enter array size", delimiter);
+			try{
+				field.set(classField.getParentObject(), Array.newInstance(field.getType().getComponentType(), size));
+			}catch(Exception ex)
+			{
+				System.out.println(ex.getMessage());
+			}
+		}
+	}
+	
+	/**
+	 * 
+	 * @param classField
+	 * @param delimiter
+	 */
+	public void setPrimitiveValue(ClassField classField, String delimiter)
+	{
+		@SuppressWarnings("resource")
+		Scanner keyboard = new Scanner(System.in);
+		String input;
+		Object obj;
+		
+		System.out.print(delimiter + "Please enter a value for " + classField.getTypeName() + " " + classField.getName() 
+			+ " (" + getPrimitiveFormat(classField.getTypeName()) + "): ");
+		input = keyboard.next();
+		
+		obj = getPrimitiveObject(classField.getTypeName(), input);
+		while(obj == null)
+		{
+			System.out.print(delimiter + "Please enter a value for " + classField.getTypeName() + " "+ classField.getName() 
+				+ " (" + getPrimitiveFormat(classField.getTypeName()) + "): ");
+			input = keyboard.next();
+			obj = getPrimitiveObject(classField.getTypeName(), input);
+		}
+		
+		setObjectValue(classField, obj);
+	}
+
+	/**
+	 * 
+	 * @param typeName
+	 * @param value
+	 * @return
+	 */
+	public Object getPrimitiveObject(String typeName, String value)
+	{
+		Object retVal = null;
+		
+		try{
+			switch(typeName)
+			{
+				case "byte":
+					retVal = new Byte(Byte.parseByte(value));
+					break;
+				case "short":
+					retVal = new Short(Short.parseShort(value));
+					break;
+				case "int":
+					retVal = new Integer(Integer.parseInt(value));
+					break;
+				case "long":
+					retVal = new Long(Long.parseLong(value));
+					break;
+				case "float":
+					retVal = new Float(Float.parseFloat(value));
+					break;
+				case "double":
+					retVal = new Double(Double.parseDouble(value));
+					break;
+				case "boolean":
+					retVal = new Boolean(Boolean.parseBoolean(value));
+					break;
+				case "char":
+					retVal = new Character(value.charAt(0));
+					break;
+			}
+		}catch(Exception ex)
+		{
+			System.out.println("Bad value format. Please retry.");
+		}
+		
+		return retVal;
+	}
+	
+	/**
+	 * 
+	 * @param typeName
+	 * @return
+	 */
+	public String getPrimitiveFormat(String typeName)
+	{
+		String retVal = "";
+		switch(typeName)
+		{
+			case "byte":
+				retVal = "-128 to 127";
+				break;
+			case "short":
+				retVal = "-32768 to 32767";
+				break;
+			case "int":
+				retVal = "number";
+				break;
+			case "long":
+				retVal = "number";
+				break;
+			case "float":
+				retVal = "decimal number";
+				break;
+			case "double":
+				retVal = "decimal number";
+				break;
+			case "boolean":
+				retVal = "'true' or 'false'";
+				break;
+			case "char":
+				retVal = "single character, ie 'c'";
+				break;
+		}
+		
+		return retVal;
 	}
 	
 	public void setObjectValue(ClassField classField, Object value)
@@ -174,21 +311,21 @@ public class ObjectSerializerClient {
 	 * @param message
 	 * @return
 	 */
-	public Integer getInt(String message)
+	public Integer getInt(String message, String delimiter)
 	{
 		Scanner keyboard = new Scanner(System.in);
 		
 		Integer choice = -1;
 		
 		do{
-			System.out.println(message);
+			System.out.print(delimiter + message);
 			String input = keyboard.nextLine();
 			
 			try{
 				choice = Integer.parseInt(input);
 			}catch(NumberFormatException ex)
 			{
-				System.out.println("Invalid entry. Please enter a number.");
+				System.out.println(delimiter + "Invalid entry. Please enter a number.");
 			}
 		}while(choice == -1);
 		
@@ -196,6 +333,7 @@ public class ObjectSerializerClient {
 		
 		return choice;
 	}
+	
 	
 	
 }

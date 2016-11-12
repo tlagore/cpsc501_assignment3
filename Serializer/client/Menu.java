@@ -46,7 +46,7 @@ public class Menu implements Closeable {
 		if (_Options.size() > 0)
 		{
 			displayMenu(delimiter);
-			return getOption(delimiter + "Enter a choice: ");
+			return getOption(delimiter + "Enter a choice: ", delimiter);
 		}else
 			throw new NoMenuOptionsException("Menu has no options. Add options before calling this function.");
 		
@@ -65,24 +65,27 @@ public class Menu implements Closeable {
 		_Output.println(_Title);
 	}
 	
-	public Integer getOption(String message)
+	public Integer getOption(String message, String delimiter)
 	{
 		Integer choice = -1;
-		String input;
-		
-		_Output.print(message);
+		String input = "";
+			
 		do
 		{
+			_Output.print(delimiter + message);
+			
 			input = _Input.nextLine();
+			
 			try{
 				choice = Integer.parseInt(input);
+				
+				if(!_Options.containsKey(choice))
+					System.out.println(delimiter + "That is not a valid option.");
+				
 			}catch(NumberFormatException ex)
 			{
-				System.out.println("Invalid entry");
+				System.out.println(delimiter + "Invalid entry");
 			}
-			
-			if(!_Options.containsKey(choice))
-				System.out.println("That is not a valid option.");
 			
 		}while (!_Options.containsKey(choice));
 		

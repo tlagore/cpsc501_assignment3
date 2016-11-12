@@ -1,7 +1,10 @@
 package serializer;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Vector;
 
 @SuppressWarnings("rawtypes")
@@ -250,9 +253,12 @@ public class ObjectHandler {
 						fieldNames[i] += " = '" + obj + "'";
 					else
 						fieldNames[i] += " = " + obj;
-					
 				}
-				else
+				else if (curField.getType().isArray())
+				{
+					fieldNames[i] += " = " + arrayToString(_Fields.elementAt(i).getValue());
+					
+				}else
 					fieldNames[i] += " = " + obj.hashCode();
 			}
 			
@@ -262,9 +268,67 @@ public class ObjectHandler {
 		return fieldNames;
 	}
 	
+	/**
+	 * assumed to be a 1d primitive array
+	 * @param field
+	 * @return
+	 */
+	public String arrayToString(Object obj)
+	{
+		String contents;
+		int length = Array.getLength(obj);
+		Object nextArrObj;
+		
+		contents = "{";
+		for (int i = 0; i < length; i ++)
+		{
+			nextArrObj = Array.get(obj, i);
+			if(nextArrObj != null)
+			{
+				if(nextArrObj.getClass().isArray())
+					contents += arrayToString(nextArrObj);
+				else if (nextArrObj.getClass().isPrimitive() || isWrapper(nextArrObj.getClass()))
+					contents += nextArrObj;
+				else
+					contents += "(hashCode)" + nextArrObj.hashCode();
+			}
+			else
+				contents += "null";
+			
+			if (i < length - 1)
+				contents += ", ";
+		}
+		contents += "}";
+		
+		return contents;
+	}
+	
 	public Class getRootClass()
 	{
 		return _RootClass;
+	}
+	
+	/**
+	 * isWrapper takes in a class and returns whether or not the class is a wrapper for a primitive object
+	 * 
+	 * @param c Class being inspected 
+	 * @return true if c is a wrapper for a primitive object, false if it is not
+	 */
+	public boolean isWrapper(Class c)
+	{
+		Set<Class<?>> wrappers = new HashSet<Class<?>>();
+		
+		wrappers.add(Byte.class);
+		wrappers.add(Short.class);
+		wrappers.add(Boolean.class);
+		wrappers.add(Integer.class);
+		wrappers.add(Double.class);
+		wrappers.add(Character.class);		
+		wrappers.add(Long.class);
+		wrappers.add(Float.class);
+		wrappers.add(Void.class);
+        
+        return wrappers.contains(c);
 	}
 	
 }
