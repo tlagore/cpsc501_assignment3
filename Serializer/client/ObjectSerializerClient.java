@@ -121,10 +121,16 @@ public class ObjectSerializerClient {
 			Integer size = getInt("Please enter array size: ", delimiter);
 			try{
 				field.set(classField.getParentObject(), Array.newInstance(field.getType().getComponentType(), size));
+				
+				if(getYesNo("Would you like to fill array now? (y/n): ", delimiter) == 'Y')
+				{
+					//fill array
+				}
 			}catch(Exception ex)
 			{
 				System.out.println(ex.getMessage());
 			}
+			
 		}
 	}
 	
@@ -334,6 +340,32 @@ public class ObjectSerializerClient {
 		return choice;
 	}
 	
-	
+
+	/**
+	 * 
+	 * @param message
+	 * @return
+	 */
+	public Character getYesNo(String message, String delimiter)
+	{
+		Scanner keyboard = new Scanner(System.in);
+		
+		Character choice = 'x';
+		
+		do{
+			System.out.print(delimiter + message);
+			String input = keyboard.nextLine().toUpperCase();
+			
+			if (input.charAt(0) != 'Y' && input.charAt(0) != 'N')
+				System.out.println(delimiter + "Invalid entry. Please enter 'y' or 'n'.");
+			else
+				choice = input.charAt(0);
+
+		}while(choice == 'x');
+		
+		//keyboard.close();
+		
+		return choice;
+	}
 	
 }
