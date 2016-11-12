@@ -1,5 +1,40 @@
 package serializer;
 
-public class ClassField {
+import java.lang.reflect.Field;
 
+public class ClassField {
+	private Object _ParentObject;
+
+	private boolean _Inherited;
+	private Field _Field;
+	
+	public ClassField(Object parent, Field field, boolean inherited)
+	{
+		_Field = field;
+		_Inherited = inherited;
+		_ParentObject = parent;
+	}
+	
+	//getters/setters	
+	public String getName()
+	{
+		return _Field.getName();
+	}
+	
+	public String getTypeName()
+	{
+		return _Field.getType().getName();
+	}//getters/setters
+
+	public Object getParentObject() {
+		return _ParentObject;
+	}
+
+	public boolean isInherited() {
+		return _Inherited;
+	}
+
+	public Field getField() {
+		return _Field;
+	}
 }
