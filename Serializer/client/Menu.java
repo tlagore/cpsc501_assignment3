@@ -41,22 +41,22 @@ public class Menu implements Closeable {
 	 * 
 	 * @return the menu choice, or -1 if there are no options associated with the menu
 	 */
-	public Integer displayMenuGetOption() throws NoMenuOptionsException
+	public Integer displayMenuGetOption(String delimiter) throws NoMenuOptionsException
 	{
 		if (_Options.size() > 0)
 		{
-			displayMenu();
-			return getOption("Enter a choice: ");
+			displayMenu(delimiter);
+			return getOption(delimiter + "Enter a choice: ");
 		}else
 			throw new NoMenuOptionsException("Menu has no options. Add options before calling this function.");
 		
 	}
 	
-	public void displayMenu()
+	public void displayMenu(String delimiter)
 	{
 		for (Integer key: _Options.keySet())
 		{
-			_Output.println(key.toString() + ") " + _Options.get(key));
+			_Output.println(delimiter + key.toString() + ") " + _Options.get(key));
 		}
 	}
 	
@@ -87,6 +87,12 @@ public class Menu implements Closeable {
 		}while (!_Options.containsKey(choice));
 		
 		return choice;
+	}
+	
+	public void clearOptions()
+	{
+		_Options.clear();
+		_CancelOption = -1;
 	}
 	
 	@Override
