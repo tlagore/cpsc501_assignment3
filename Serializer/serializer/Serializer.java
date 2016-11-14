@@ -12,10 +12,12 @@ import org.jdom2.output.XMLOutputter;
 
 public class Serializer {
 	private IdentityHashMap<Integer, Object> _SerializedObjects;
+	private int _CurrentKey;
 	
 	public Serializer()
 	{
 		_SerializedObjects = new IdentityHashMap<Integer, Object>();
+		_CurrentKey = 0;
 	}
 	
 	/** 
@@ -46,6 +48,8 @@ public class Serializer {
 				serializeCollection(fields.elementAt(i), doc);
 			}
 		}
+		
+		writeXML(doc);
 		
 		return doc;
 	}
@@ -82,7 +86,8 @@ public class Serializer {
 
 	private void serializeObject(ClassField classField, Document doc) 
 	{
-		// TODO Auto-generated method stub
+		Element objectElement = new Element("object");
+		
 	}
 	
 	public void writeXML(Document doc)
