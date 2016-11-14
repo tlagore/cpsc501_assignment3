@@ -10,10 +10,11 @@ import serializer.ClassField;
 import serializer.ObjectField;
 import serializer.ObjectHandler;
 import serializer.PrimitiveField;
+import serializer.Serializer;
 
 public class ObjectSerializerClient {
 	private Menu _MainMenu;
-	private final String DELIMITER = "  ";
+	private final String DELIMITER = "   ";
 	
 	public ObjectSerializerClient()
 	{
@@ -38,6 +39,9 @@ public class ObjectSerializerClient {
 		{
 			ObjectHandler objHandler = getObjectHandler(classes[choice]);
 			instantiateObjectFields(objHandler, DELIMITER);
+			
+			Serializer serializer = new Serializer();
+			//TODO serialize and send
 
 			_MainMenu.displayTitle();
 			choice = getMenuOption(_MainMenu, "");
@@ -50,8 +54,11 @@ public class ObjectSerializerClient {
 	}
 	
 	/**
+	 * instantiateObjectFields takes in an ObjectHandler and generates a menu for the user to instantiate and set all fields within
+	 * the Object in ObjectHandler
 	 * 
-	 * @param objHandler
+	 * @param objHandler The ObjectHandler for the object being instantiated.
+	 * @param delimiter  A delimiter used for formatting client output. Will prefix all output.
 	 */
 	public void instantiateObjectFields(ObjectHandler objHandler, String delimiter)
 	{
@@ -76,8 +83,10 @@ public class ObjectSerializerClient {
 	}
 	
 	/**
+	 * setField determines the type of the field and performs the necessary actions required to instantiate, and set the fields of the object.
 	 * 
-	 * @param classField
+	 * @param classField the ClassField that represents the field
+	 * @param delimiter A delimiter that will prefix all output.
 	 */
 	public void setField(ClassField classField, String delimiter)
 	{
@@ -90,9 +99,8 @@ public class ObjectSerializerClient {
 				createArray(classField.getParentObject(), classField.getField(), delimiter);
 			}else
 			{
-				//set array values	
-			}
-			
+				fillArray(classField.getParentObject(), delimiter);
+			}	
 		}else if(classField instanceof ObjectField){			
 			//if object has not been initialize yet, create new object
 			if (obj == null)
@@ -111,7 +119,16 @@ public class ObjectSerializerClient {
 			//handle collection
 		}
 	}
-	
+
+	/**
+	 * createArray takes will determine the dimensions of an array field, then ask the user for the sizes of each dimension.
+	 * <p>
+	 * The user then has the option to fill the array, or leave it to the default instantiated values.
+	 * 
+	 * @param parentObj The object to which the field belongs
+	 * @param field The field that represents the array being instantiated
+	 * @param delimiter a delimiter that will prefix all output.
+	 */
 	@SuppressWarnings("rawtypes")
 	public void createArray(Object parentObj, Field field, String delimiter)
 	{
@@ -142,9 +159,10 @@ public class ObjectSerializerClient {
 	}
 	
 	/**
+	 * fillArray takes in an array Object and recursively fills the object with user input.
 	 * 
-	 * @param obj
-	 * @param delimiter
+	 * @param obj An array Object
+	 * @param delimiter a delimiter that will prefix all output.
 	 */
 	public void fillArray(Object obj, String delimiter)
 	{
@@ -180,23 +198,18 @@ public class ObjectSerializerClient {
 					Array.set(obj, i, value);
 				}else
 				{
-					//object
-					try{
-						ObjectHandler objHandler = new ObjectHandler(nextArrObj);
-						instantiateObjectFields(objHandler, delimiter + DELIMITER);
-					}catch(Exception ex)
-					{
-						System.out.println("Couldn't instantiate object.");
-					}
+					ObjectHandler objHandler = new ObjectHandler(nextArrObj);
+					instantiateObjectFields(objHandler, delimiter + DELIMITER);
 				}
 			}
 		}
 	}
 	
 	/**
+	 * setPrimitiveValue takes in a ClassField representing a field of an object and sets the value of field to user input.
 	 * 
-	 * @param classField
-	 * @param delimiter
+	 * @param classField The ClassField that represents the Field and Object being set
+	 * @param delimiter A delimiter that will prefix all output
 	 */
 	public void setPrimitiveValue(ClassField classField, String delimiter)
 	{
@@ -222,10 +235,15 @@ public class ObjectSerializerClient {
 	}
 
 	/**
+	 * getPrimitiveObject takes in a class type name in String format (assumed to represent a primitive, or primitive wrapper type) and a String value and
+	 * returns a primitive Object wrapper that represents the value of the String passed in.
 	 * 
-	 * @param typeName
-	 * @param value
-	 * @return
+	 * If the value is in bad form for the class type name that was received, or the class type name is not of primitive or primitive wrapper type,
+	 * null is returned.
+	 *  
+	 * @param typeName A String representation of the values class type. (ie, "java.lang.Integer","byte","char","java.lang.Character", etc.)
+	 * @param value The value of the desired Object
+	 * @return A primitive wrapper Object of the requested typeName with value "value", or null if input is in bad form.
 	 */
 	public Object getPrimitiveObject(String typeName, String value)
 	{
@@ -276,9 +294,10 @@ public class ObjectSerializerClient {
 	}
 	
 	/**
+	 * getPrimitiveFormat returns a string representation of the valid values of the specified "typeName".
 	 * 
-	 * @param typeName
-	 * @return
+	 * @param typeName the primitive type for which the format is desired (ie, "int", "byte", "char" ...)
+	 * @return a string representation of the valid values of the specified "typeName"
 	 */
 	public String getPrimitiveFormat(String typeName)
 	{
@@ -292,10 +311,10 @@ public class ObjectSerializerClient {
 				retVal = "-32768 to 32767";
 				break;
 			case "int":
-				retVal = "number";
+				retVal = "whole number";
 				break;
 			case "long":
-				retVal = "number";
+				retVal = "whole number";
 				break;
 			case "float":
 				retVal = "decimal number";
@@ -314,6 +333,12 @@ public class ObjectSerializerClient {
 		return retVal;
 	}
 	
+	/**
+	 * setObjectValue takes in a ClassField representation of a field and an Object value and sets the value of the field to that Object.
+	 * 
+	 * @param classField The ClassField representation of a field of an Object
+	 * @param value the value that we wish to set the field's value to
+	 */
 	public void setObjectValue(ClassField classField, Object value)
 	{
 		//we don't set accessible true because the ClassField automatically sets accessible to true
@@ -325,12 +350,19 @@ public class ObjectSerializerClient {
 		}
 	}
 		
-	public ObjectHandler getObjectHandler(String str)
+	/**
+	 * getObjectHandler is a simple wrapper to create an ObjectHandler based on a className that handles all possible thrown
+	 * exceptions.
+	 * 
+	 * @param className the name of the class for which we desire an ObjectHandler (ie. "java.lang.String", "packageName.ClassName")
+	 * @return an ObjectHandler that represents the instantiation of the Object, or null if there was an error in creating the ObjectHandler
+	 */
+	public ObjectHandler getObjectHandler(String className)
 	{
 		ObjectHandler objHandler = null;
 		
 		try{
-			objHandler = new ObjectHandler(str);
+			objHandler = new ObjectHandler(className);
 			
 		}catch(IllegalAccessException ex)
 		{
@@ -347,9 +379,11 @@ public class ObjectSerializerClient {
 	}
 	
 	/**
+	 * getMenuOption attempts to retrieve a menu option from a specified menu
 	 * 
-	 * @param menu
-	 * @return
+	 * @param menu The Menu for which an option is desired.
+	 * @param delimiter a delimiter that will prefix all output.
+	 * @return an Integer representation of the option chosen.
 	 */
 	public Integer getMenuOption(Menu menu, String delimiter)
 	{
@@ -358,7 +392,7 @@ public class ObjectSerializerClient {
 			choice = menu.displayMenuGetOption(delimiter);
 		}catch(NoMenuOptionsException ex)
 		{
-			System.out.println(ex.getMessage());
+			System.out.println(delimiter + ex.getMessage());
 		}
 		
 		return choice;

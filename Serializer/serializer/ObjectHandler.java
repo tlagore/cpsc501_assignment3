@@ -15,10 +15,10 @@ public class ObjectHandler {
 	
 	/**
 	 * attempts to instantiates an object for a specified class name and generate the field information for the new object
-	 * @param className
-	 * @throws ClassNotFoundException
-	 * @throws IllegalAccessException
-	 * @throws InstantiationException
+	 * @param className The name of the class being instantiated.
+	 * @throws ClassNotFoundException thrown if the class name handed in cannot be found
+	 * @throws IllegalAccessException thrown if the class attempting to be instantiated cannot be accessed
+	 * @throws InstantiationException thrown if there is an error instantiating the object for the class name
 	 */
 	public ObjectHandler(String className) throws ClassNotFoundException, IllegalAccessException, InstantiationException
 	{
@@ -42,7 +42,7 @@ public class ObjectHandler {
 	}
 	
 	/**
-	 * Takes in an already instantiated object and generates field information for the object
+	 * Secondary constructor, takes in an already instantiated object and generates field information for the object
 	 * @param obj
 	 */
 	public ObjectHandler(Object obj)
@@ -55,9 +55,10 @@ public class ObjectHandler {
 	}
 	
 	/**
-	 * set as public to allow for testing
+	 * generateFields generates a list of ClassField representations of the fields of the passed in class
 	 * 
-	 * generates a list of the fields for the object that was handed in to ObjectHandler 
+	 * @param cl the class for which the fields need to be generated
+	 * @param inherited true if the field of the class is inherited, false if it belongs to the class itself
 	 */
 	public void generateFields(Class cl, boolean inherited)
 	{
@@ -85,7 +86,7 @@ public class ObjectHandler {
 	}
 	
 	/**
-	 * 
+	 * generateInheritedFields obtains a list of all superclasses from which the RootClass inherits and generatesFields for them.
 	 */
 	public void generateInheritedFields()
 	{
@@ -207,6 +208,14 @@ public class ObjectHandler {
 		return _Fields;
 	}
 	
+	/**
+	 * Get field names returns an array containing a string representation of each field within the Object being handled by the ObjectHandler<p>
+	 * field names are in the form "type name = value" for objects and primitives (where value is the hashCode in the instance of an Object)
+	 * and the form "type [][] name = { { val1, val2 }, { val3, val4 } } for arrays. If the array represents an array of objects, the hashCode
+	 * of the object is displayed.
+	 * 
+	 * @return a String[] containing the details of each field of the class.
+	 */
 	public String[] getFieldNames()
 	{
 		int i;
@@ -269,44 +278,47 @@ public class ObjectHandler {
 	}
 	
 	/**
-	 * assumed to be a 1d primitive array
-	 * @param field
-	 * @return
+	 * arrayToString takes in an array object and returns a string representation of the contents of the array in the form<p>
+	 * { { 1, 2 }, { 3, 4 } } where the Object represented an int[2][2] array. If the array object passed in is an array of Objects,
+	 * the hashCode of the object will be displayed instead.
+	 * 
+	 * @param obj The array Object being examined
+	 * @return a string representation of the contents of the array
 	 */
 	public String arrayToString(Object obj)
 	{
-		String contents;
-		int length = Array.getLength(obj);
-		Object nextArrObj;
+		String contents = "";
 		
-		contents = "{";
-		for (int i = 0; i < length; i ++)
+		if (obj != null && obj.getClass().isArray())
 		{
-			nextArrObj = Array.get(obj, i);
-			if(nextArrObj != null)
-			{
-				if(nextArrObj.getClass().isArray())
-					contents += arrayToString(nextArrObj);
-				else if (nextArrObj.getClass().isPrimitive() || isWrapper(nextArrObj.getClass()))
-					contents += nextArrObj;
-				else
-					contents += "(hashCode)" + nextArrObj.hashCode();
-			}
-			else
-				contents += "null";
+			int length = Array.getLength(obj);
+			Object nextArrObj;
 			
-			if (i < length - 1)
-				contents += ", ";
+			contents = "{";
+			for (int i = 0; i < length; i ++)
+			{
+				nextArrObj = Array.get(obj, i);
+				if(nextArrObj != null)
+				{
+					if(nextArrObj.getClass().isArray())
+						contents += arrayToString(nextArrObj);
+					else if (nextArrObj.getClass().isPrimitive() || isWrapper(nextArrObj.getClass()))
+						contents += nextArrObj;
+					else
+						contents += "(hashCode)" + nextArrObj.hashCode();
+				}
+				else
+					contents += "null";
+				
+				if (i < length - 1)
+					contents += ", ";
+			}
+			contents += "}";
 		}
-		contents += "}";
 		
 		return contents;
 	}
-	
-	public Class getRootClass()
-	{
-		return _RootClass;
-	}
+
 	
 	/**
 	 * isWrapper takes in a class and returns whether or not the class is a wrapper for a primitive object
@@ -329,6 +341,12 @@ public class ObjectHandler {
 		wrappers.add(Void.class);
         
         return wrappers.contains(c);
+	}
+	
+	/* getters / setters */
+	public Class getRootClass()
+	{
+		return _RootClass;
 	}
 	
 }
