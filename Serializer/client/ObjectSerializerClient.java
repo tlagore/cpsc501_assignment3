@@ -160,7 +160,10 @@ public class ObjectSerializerClient {
 				nextArrObj = Array.get(obj, i);
 				if (nextArrObj == null)
 				{
+					System.out.println("Element " + i);
 					ObjectHandler objHandler = getObjectHandler(obj.getClass().getComponentType().getName());
+					Array.set(obj, i, objHandler.getRootObject());
+					instantiateObjectFields(objHandler, delimiter + DELIMITER);
 				}
 				else if (nextArrObj.getClass().isArray())
 				{
