@@ -171,7 +171,7 @@ public class ObjectHandler {
 	 * @param c the class for which the name is to be derived
 	 * @return String[], String[0] = Dimensions of array (0 if not an array), String[1] contains the name of the class (or char code if a primitive non-array).
 	 */
-	public String[] getClassNameDetails(Class c)
+	public static String[] getClassNameDetails(Class c)
 	{
 		String[] fullClassName = new String[]{"",""};
 		String className = c.getName();
@@ -314,7 +314,7 @@ public class ObjectHandler {
 	 * @param c Class being inspected 
 	 * @return true if c is a wrapper for a primitive object, false if it is not
 	 */
-	public boolean isWrapper(Class c)
+	public static boolean isWrapper(Class c)
 	{
 		Set<Class<?>> wrappers = new HashSet<Class<?>>();
 		

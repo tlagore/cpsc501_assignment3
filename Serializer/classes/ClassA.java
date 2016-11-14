@@ -4,5 +4,6 @@ public class ClassA {
 	private boolean boolVar;
 	private int thing;
 	private char type;
-	private int[] arr;
+	private int[][][] arr;
+	private ClassA[] objArr;
 }

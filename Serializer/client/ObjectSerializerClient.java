@@ -87,7 +87,7 @@ public class ObjectSerializerClient {
 		if(classField instanceof ArrayField){
 			if (obj == null)
 			{
-				createArray(classField, delimiter);
+				createArray(classField.getParentObject(), classField.getField(), delimiter);
 			}else
 			{
 				//set array values	
@@ -112,25 +112,81 @@ public class ObjectSerializerClient {
 		}
 	}
 	
-	public void createArray(ClassField classField, String delimiter)
+	@SuppressWarnings("rawtypes")
+	public void createArray(Object parentObj, Field field, String delimiter)
 	{
-		//ensure handed in class is an array
-		Field field = classField.getField();
-		if (field.getType().isArray())
+		int dimensions = Integer.parseInt(ObjectHandler.getClassNameDetails(field.getType())[0]);
+		int[] sizes = new int[dimensions];
+		System.out.println(dimensions+"D array detected.");
+		Class componentType = field.getType();
+		//don't do anything unless actually array.
+		if(dimensions > 0)
 		{
-			Integer size = getInt("Please enter array size: ", delimiter);
+			for(int i = 0; i < dimensions; i++){
+				sizes[i] =  getInt("Please enter array size for dimension " + (i + 1) + ": ", delimiter);
+				componentType = componentType.getComponentType();
+			}
+			
 			try{
-				field.set(classField.getParentObject(), Array.newInstance(field.getType().getComponentType(), size));
+				field.set(parentObj, Array.newInstance(componentType, sizes));
 				
 				if(getYesNo("Would you like to fill array now? (y/n): ", delimiter) == 'Y')
 				{
-					//fill array
+					fillArray(field.get(parentObj), delimiter);
 				}
 			}catch(Exception ex)
 			{
-				System.out.println(ex.getMessage());
+				System.out.println(delimiter + ex.getMessage());
 			}
-			
+		}	
+	}
+	
+	/**
+	 * 
+	 * @param obj
+	 * @param delimiter
+	 */
+	public void fillArray(Object obj, String delimiter)
+	{
+		int length;
+		Object nextArrObj;
+		Object value;
+		
+		if (obj.getClass().isArray())
+		{			
+			length = Array.getLength(obj);
+			for(int i = 0; i < length; i++)
+			{
+				nextArrObj = Array.get(obj, i);
+				if (nextArrObj == null)
+				{
+					ObjectHandler objHandler = getObjectHandler(obj.getClass().getComponentType().getName());
+				}
+				else if (nextArrObj.getClass().isArray())
+				{
+					fillArray(nextArrObj, delimiter);
+				}
+				else if (nextArrObj.getClass().isPrimitive() || ObjectHandler.isWrapper(nextArrObj.getClass()))
+				{
+					do
+					{
+						value = getPrimitiveObject(nextArrObj.getClass().getTypeName(), 
+								getLine("Enter value for element [" + i + "]: ", delimiter));
+					}while(value == null);
+					
+					Array.set(obj, i, value);
+				}else
+				{
+					//object
+					try{
+						ObjectHandler objHandler = new ObjectHandler(nextArrObj);
+						instantiateObjectFields(objHandler, delimiter + DELIMITER);
+					}catch(Exception ex)
+					{
+						System.out.println("Couldn't instantiate object.");
+					}
+				}
+			}
 		}
 	}
 	
@@ -176,27 +232,35 @@ public class ObjectSerializerClient {
 			switch(typeName)
 			{
 				case "byte":
+				case "java.lang.Byte":
 					retVal = new Byte(Byte.parseByte(value));
 					break;
 				case "short":
+				case "java.lang.Short":
 					retVal = new Short(Short.parseShort(value));
 					break;
 				case "int":
+				case "java.lang.Integer":
 					retVal = new Integer(Integer.parseInt(value));
 					break;
 				case "long":
+				case "java.lang.Long":
 					retVal = new Long(Long.parseLong(value));
 					break;
 				case "float":
+				case "java.lang.Float":
 					retVal = new Float(Float.parseFloat(value));
 					break;
 				case "double":
+				case "java.lang.Double":
 					retVal = new Double(Double.parseDouble(value));
 					break;
 				case "boolean":
+				case "java.lang.Boolean":
 					retVal = new Boolean(Boolean.parseBoolean(value));
 					break;
 				case "char":
+				case "java.lang.Character":
 					retVal = new Character(value.charAt(0));
 					break;
 			}
@@ -366,6 +430,16 @@ public class ObjectSerializerClient {
 		//keyboard.close();
 		
 		return choice;
+	}
+	
+	public String getLine(String message, String delimiter)
+	{
+		Scanner keyboard = new Scanner(System.in);
+
+		System.out.print(delimiter + message);
+		String input = keyboard.nextLine();
+
+		return input;
 	}
 	
 }
