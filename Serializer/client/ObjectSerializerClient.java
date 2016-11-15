@@ -26,7 +26,7 @@ public class ObjectSerializerClient {
 	 */
 	public void run()
 	{
-		String[] classes = new String[] { "classes.ClassA", "classes.ClassB", "classes.ClassC" };
+		String[] classes = new String[] { "classes.ClassA", "classes.ClassB", "classes.ClassC", "classes.ClassD" };
 		Scanner keyboard = new Scanner(System.in);
 		Integer choice;
 		

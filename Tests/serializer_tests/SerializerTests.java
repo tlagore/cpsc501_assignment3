@@ -25,9 +25,10 @@ public class SerializerTests {
 		
 		try{
 			ObjectHandler objHandler = new ObjectHandler("classes.ClassD");
+
 			for(int i = 0; i < objHandler.getFields().size(); i++)
 			{
-				serializer.serializePrimitive(objHandler.getFields().elementAt(i), doc);
+				serializer.serializePrimitive(objHandler.getFields().elementAt(i).getParentObject(), objHandler.getFields().elementAt(i).getField(), doc);
 			}
 			
 			List<Element> els = doc.getRootElement().getChildren();

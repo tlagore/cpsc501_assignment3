@@ -1,6 +1,7 @@
 package serializer;
 
 import java.io.FileWriter;
+import java.lang.reflect.Field;
 import java.util.IdentityHashMap;
 import java.util.Vector;
 
@@ -32,20 +33,25 @@ public class Serializer {
 		
 		ObjectHandler objHandler = new ObjectHandler(obj);
 		Vector<ClassField> fields = objHandler.getFields();
+		Object parentObj;
+		Field curField;
 		
 		for(int i  = 0; i < fields.size(); i++)
 		{
+			parentObj = fields.elementAt(i).getParentObject();
+			curField = fields.elementAt(i).getField();
+			
 			if(fields.elementAt(i) instanceof PrimitiveField){
-				serializePrimitive(fields.elementAt(i), doc);
+				serializePrimitive(parentObj, curField, doc);
 				
 			}else if (fields.elementAt(i) instanceof ObjectField){
-				serializeObject(fields.elementAt(i), doc);
+				serializeObject(parentObj, curField, doc);
 			
 			}else if (fields.elementAt(i) instanceof ArrayField){
-				serializeArray(fields.elementAt(i), doc);
+				serializeArray(parentObj, curField, doc);
 				
 			}else if (fields.elementAt(i) instanceof CollectionField){
-				serializeCollection(fields.elementAt(i), doc);
+				serializeCollection(parentObj, curField, doc);
 			}
 		}
 		
@@ -55,17 +61,18 @@ public class Serializer {
 	}
 	
 	
-	public void serializePrimitive(ClassField classField, Document doc)
+	public void serializePrimitive(Object parentObj, Field field, Document doc)
 	{		
 		Element fieldElement = new Element("field");
-		Attribute fieldName = new Attribute("name", classField.getField().getName());
-		Attribute declaringClass = new Attribute("declaringclass", classField.getParentObject().getClass().getName());
+		Attribute fieldName = new Attribute("name", field.getName());
+		Attribute declaringClass = new Attribute("declaringclass", parentObj.getClass().getName());
 		
 		
 		fieldElement = fieldElement.setAttribute(fieldName);
 		fieldElement = fieldElement.setAttribute(declaringClass);
 		try{
-			fieldElement.addContent(new Element("value").setText(classField.getField().get(classField.getParentObject()).toString()));	
+			field.setAccessible(true);
+			fieldElement.addContent(new Element("value").setText(field.get(parentObj).toString()));	
 		}catch(IllegalAccessException ex)
 		{
 			ex.printStackTrace();
@@ -74,20 +81,49 @@ public class Serializer {
 		doc.getRootElement().addContent(fieldElement);
 	}
 	
-	private void serializeCollection(ClassField elementAt, Document doc) 
+	private void serializeCollection(Object parentObj, Field field, Document doc) 
 	{
 		// TODO Auto-generated method stub
 	}
 
-	private void serializeArray(ClassField elementAt, Document doc) 
+	private void serializeArray(Object parentObj, Field field, Document doc) 
 	{
 		// TODO Auto-generated method stub
 	}
 
-	private void serializeObject(ClassField classField, Document doc) 
+	private void serializeObject(Object parentObj, Field field, Document doc) 
 	{
-		Element objectElement = new Element("object");
+		int objId = -1;	
+		Element objectElement;
+		Attribute name, idAtt;
+		Object obj = null;
+		try{
+			field.setAccessible(true);
+			obj = field.get(parentObj);
+		}catch(IllegalAccessException ex)
+		{
+			//IllegalAccessException
+		}
 		
+		if(obj == null)
+		{
+			
+		}else
+		{
+			objId = System.identityHashCode(obj);
+			if(!_SerializedObjects.containsKey(objId))
+			{
+				objectElement = new Element("object");
+				name = new Attribute("name", field.getName());
+				idAtt = new Attribute("id", String.valueOf(objId));
+				
+				Field[] fields = obj.getClass().getDeclaredFields();
+				for (int i = 0; i < fields.length; i++)
+				{
+					
+				}
+			}
+		}	
 	}
 	
 	public void writeXML(Document doc)

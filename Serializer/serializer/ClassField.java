@@ -8,9 +8,13 @@ public class ClassField {
 	private boolean _Inherited;
 	private Field _Field;
 	
+	//maintained before setAccessible set to true.
+	private int _Modifiers;
+
 	public ClassField(Object parent, Field field, boolean inherited)
 	{
 		_Field = field;
+		_Modifiers = field.getModifiers();
 		_Field.setAccessible(true);
 		_Inherited = inherited;
 		_ParentObject = parent;
@@ -37,6 +41,10 @@ public class ClassField {
 
 	public Field getField() {
 		return _Field;
+	}
+	
+	public int get_Modifiers() {
+		return _Modifiers;
 	}
 	
 	public Object getValue(){
