@@ -7,6 +7,7 @@ import org.jdom2.Element;
 import org.junit.Test;
 
 import deserializer.Deserializer;
+import serializer.Serializer;
 
 public class DeserializerTests {
 
@@ -37,6 +38,27 @@ public class DeserializerTests {
 		Object obj3 = deserializer.getObjectFromElement(el3);
 		
 		assertEquals(obj3 instanceof classes.ClassD, true);
+	}
+	
+	@Test
+	public void testDeserialize()
+	{
+		String str = new String("hello");
+		Serializer serializer = new Serializer();
+		Deserializer deserializer = new Deserializer();
+		
+		//serialize then immediately deserialize object into new object and ensure fields match
+		Object newStr = deserializer.deserialize(serializer.serialize((Object)str));
+		assertEquals(((String)newStr).length(), str.length());
+		assertEquals(((String)newStr).compareTo(str) == 0, true);
+		
+		classes.ClassA classA = new classes.ClassA();
+		classA.setBoolVar(true);
+		classA.setThing(999);
+		
+		classes.ClassA newObj = (classes.ClassA)deserializer.deserialize(serializer.serialize((Object)classA));	
+		assertEquals(classA.getThing(), newObj.getThing());
+		assertEquals(classA.getBoolVar(), newObj.getBoolVar());
 	}
 
 }
