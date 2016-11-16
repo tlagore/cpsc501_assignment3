@@ -303,6 +303,7 @@ public class Serializer {
 	public static String documentToString(Document doc)
 	{
 		XMLOutputter outputter = new XMLOutputter();
+		outputter.setFormat(Format.getPrettyFormat());
 		return outputter.outputString(doc);
 	}
 
