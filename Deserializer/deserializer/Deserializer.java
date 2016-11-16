@@ -37,6 +37,7 @@ public class Deserializer {
 		try{
 			Class rootClass = Class.forName(className);
 			Constructor constr = rootClass.getDeclaredConstructor(new Class[]{});
+			constr.setAccessible(true);
 			obj = constr.newInstance(new Object[]{});
 		}catch(ClassNotFoundException ex)
 		{
