@@ -38,7 +38,7 @@ public class Menu implements Closeable {
 	
 	/**
 	 * displays the menu and prompts for a choice.
-	 * 
+	 * @param delimiter a delimiter that will prefix all output
 	 * @return the menu choice, or -1 if there are no options associated with the menu
 	 */
 	public Integer displayMenuGetOption(String delimiter) throws NoMenuOptionsException
@@ -52,6 +52,10 @@ public class Menu implements Closeable {
 		
 	}
 	
+	/**
+	 * displays the menu 
+	 * @param delimiter a delimiter that will prefix all output
+	 */
 	public void displayMenu(String delimiter)
 	{
 		for (Integer key: _Options.keySet())
@@ -60,11 +64,21 @@ public class Menu implements Closeable {
 		}
 	}
 	
+	/**
+	 * displays the title of the menu
+	 */
 	public void displayTitle()
 	{
 		_Output.println(_Title);
 	}
 	
+	/**
+	 * Requests the user for input with a specified message and returns the users choice.
+	 * 
+	 * @param message The message to be displayed to the user
+	 * @param delimiter A delimiter that will prefix all output
+	 * @return an Integer representing their choice
+	 */
 	public Integer getOption(String message, String delimiter)
 	{
 		Integer choice = -1;
@@ -92,12 +106,18 @@ public class Menu implements Closeable {
 		return choice;
 	}
 	
+	/**
+	 * clears all menu options
+	 */
 	public void clearOptions()
 	{
 		_Options.clear();
 		_CancelOption = -1;
 	}
 	
+	/**
+	 * if desired to prevent memory leaks, the menu implements Closable to allow the closing of the used InputStream
+	 */
 	@Override
 	public void close() throws IOException
 	{
@@ -109,8 +129,8 @@ public class Menu implements Closeable {
 	}
 	
 	/**
-	 * 
-	 * @return
+	 * Returns the value that represents the cancel option
+	 * @return an Integer representation of the choice that means the user wishes to cancel
 	 */
 	public Integer getCancelOption()
 	{
@@ -118,7 +138,7 @@ public class Menu implements Closeable {
 	}
 	
 	/**
-	 * 
+	 * Sets the value that represents the cancel option
 	 * @param option
 	 */
 	public void setCancelOption(Integer option)

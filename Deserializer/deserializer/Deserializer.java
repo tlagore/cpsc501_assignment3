@@ -42,6 +42,8 @@ public class Deserializer {
 	 */
 	public Object deserialize(Document doc)
 	{
+		_RootObject = null;
+		
 		try{
 			Element rootElement = doc.getRootElement();
 			List<Element> children = rootElement.getChildren();
@@ -57,6 +59,10 @@ public class Deserializer {
 		{
 			System.out.println("General exception caught: " + ex.getMessage() + " " + ex.getCause());
 		}
+		
+		//clear Deserialized objects in case function is called again with a new Document
+		_DeserializedObjects.clear();
+		
 		return _RootObject;
 	}
 	
@@ -167,9 +173,11 @@ public class Deserializer {
 	}
 	
 	/**
+	 * resolveField resolves a single field elements reference. resolveField can handle Object type references as well
+	 * as literal primitives.
 	 * 
-	 * @param curField
-	 * @param objId
+	 * @param curField an Element representing the field being inspected
+	 * @param objId The object ID of the deserialized object that the field belongs to
 	 */
 	public void resolveField(Element curField, Integer objId)
 	{
@@ -198,9 +206,11 @@ public class Deserializer {
 			{
 				reference = referenceOrValue.getText();
 				try{
-					field.setAccessible(true);
-					field.set(_DeserializedObjects.get(objId), _DeserializedObjects.get(Integer.valueOf(reference)));
-					field.setAccessible(false);
+					if(reference.compareTo("") != 0){
+						field.setAccessible(true);
+						field.set(_DeserializedObjects.get(objId), _DeserializedObjects.get(Integer.valueOf(reference)));
+						field.setAccessible(false);
+					}
 				}catch(Exception ex)
 				{
 					System.out.println(ex.getMessage());
@@ -210,10 +220,11 @@ public class Deserializer {
 	}
 	
 	/**
+	 * getFieldFromClass is a simple wrapper that handles the try/catch of attempting to get a Field from a Class by string name.
 	 * 
-	 * @param cl
-	 * @param name
-	 * @return
+	 * @param cl the Class to which the supposed field belongs
+	 * @param name the string name of the field being retrieved
+	 * @return a Field object representing the field requested, or null if the field is not found.
 	 */
 	@SuppressWarnings("rawtypes")
 	public Field getFieldFromClass(Class cl, String name)
@@ -229,8 +240,9 @@ public class Deserializer {
 	}
 	
 	/**
+	 * getClassForName is a simple wrapper that handles the try/catch of attempting to get a Class by string name
 	 * 
-	 * @param className
+	 * @param className A string representation of the class name
 	 * @return
 	 */
 	@SuppressWarnings("rawtypes")
@@ -248,9 +260,13 @@ public class Deserializer {
 	
 	
 	/**
+	 * populateObjects takes in a list of elements and a starting index and attempts to generate each object represented
+	 * by the elements by calling the default no-arg constructor of the represented objects.
 	 * 
-	 * @param elements
-	 * @param startingIndex
+	 * populateObjects should be called before any reference resolving is attempted.
+	 * 
+	 * @param elements The children elements of the documents root element.
+	 * @param startingIndex the index for which to start on the elements. 0 if all elements are to be deserialized.
 	 */
 	public void populateObjects(List<Element> elements, int startingIndex)
 	{
@@ -276,10 +292,11 @@ public class Deserializer {
 	}
 	
 	/**
+	 * getArrayObjectFromElement instantiates an array object represented by a passed in Element to the size specified.
 	 * 
-	 * @param el
-	 * @param size
-	 * @return
+	 * @param el The element representing the serialized array object
+	 * @param size The size of the array
+	 * @return an Object representation of the specified Element. Note that the Object is a new Array with no resolved references.
 	 */
 	@SuppressWarnings("rawtypes")
 	public Object getArrayObjectFromElement(Element el, int size)
@@ -301,6 +318,12 @@ public class Deserializer {
 		return obj;
 	}
 	
+	/**
+	 * getObjectFromElement retrieves the Object representation of an Element by calling the no-arg constructor for the Elements "class" attribute.
+	 * 
+	 * @param el The elemnt representing the serialized object
+	 * @return an Object representation of the Element. Note that the Object is a new Object generated from the no-arg constructor and has no references or primitives resolved.
+ 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Object getObjectFromElement(Element el)
 	{

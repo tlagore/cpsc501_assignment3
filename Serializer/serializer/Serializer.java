@@ -18,6 +18,13 @@ import org.jdom2.Element;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 
+/**
+ * Serializer handles the Serialization of Objects and returns a JDOM Document object to be Deserialized
+ * by the class Deserializer.
+ * 
+ * @author Tyrone Lagore
+ *
+ */
 public class Serializer {
 	private IdentityHashMap<Integer, Object> _SerializedObjects;
 	
@@ -28,7 +35,11 @@ public class Serializer {
 	
 	/** 
 	 * serialize takes in an Object and returns a JDOM Document representation of the object.
-	 * @param obj
+	 * 
+	 * Serialize assumes that the base level object being handed in is <b>not</b> an array object,
+	 * but could handle such objects with minor tweaking.
+	 * 
+	 * @param obj The object to serializer
 	 * @return
 	 */
 	public Document serialize(Object obj)
@@ -42,10 +53,11 @@ public class Serializer {
 	}
 	
 	/**
+	 * serializeObject serializes a single Object, then calls iterateObjectFields to serialize the Objects fields
 	 * 
-	 * @param obj
-	 * @param root
-	 * @param doc
+	 * @param obj The object being serialized
+	 * @param root The root Element to which the object will belong
+	 * @param doc The base Document of the Serializer
 	 */
 	private void serializeObject(Object obj, Element root, Document doc) 
 	{
@@ -74,10 +86,11 @@ public class Serializer {
 	}
 	
 	/**
+	 * serializeArrayObject recursively serializes an ArrayObject
 	 * 
-	 * @param obj
-	 * @param root
-	 * @param doc
+	 * @param obj The object representing the Array
+	 * @param root The root Element to which the array belongs
+	 * @param doc The base Document of the Serializer
 	 */
 	@SuppressWarnings("unused")
 	private void serializeArrayObject(Object obj, Element root, Document doc) 
@@ -139,13 +152,13 @@ public class Serializer {
 	}
 	
 	/**
-	 * Reflectively calls a passed in Method with specified parameters 
+	 * serializeObjectOrArray Reflectively calls a passed in Method with specified parameters to serialize an Object or an Array
 	 * 
-	 * @param method
-	 * @param params
-	 * @param fieldElement
-	 * @param curField
-	 * @param parentObj
+	 * @param method The method representing the method that should be called (either "serializeArrayObject" or "serializeObject"
+	 * @param params The parameters for the methods, <p>{ "Object" representing the object being serialized, <p>"Element" representing the root element being serialized, <p>"Document" representing the base Document } 
+	 * @param fieldElement the Element that the Object or Array is represented by
+	 * @param curField The field that represents the Object or Array
+	 * @param parentObj The parent Object to which the array or object belong
 	 */
 	public void serializeObjectOrArray(Method method, Object[] params, Element fieldElement, Field curField, Object parentObj)
 	{
@@ -178,10 +191,13 @@ public class Serializer {
 	}
 	
 	/**
-	 * 
-	 * @param obj
-	 * @param root
-	 * @param doc
+	 * iterateObjFields takes in an Object, a root Element to which the Object is represented by, and the base Document
+	 * for which the final serialized object will represent.
+	 * <p>
+
+	 * @param obj The Object for which the fields need to be serialized
+	 * @param root The root Element to which the fields will be added
+	 * @param doc The base Document for which the final serialized object will represent.
 	 */
 	public void iterateObjFields(Object obj, Element root, Document doc)
 	{
@@ -242,10 +258,12 @@ public class Serializer {
 	}
 	
 	/**
+	 * serializePrimitive takes in a parentObject, a field representing a primitive and a fieldElement representing a generic
+	 * field and adds an Element representing the value of the primitive to the fieldElement
 	 * 
-	 * @param parentObj
-	 * @param field
-	 * @param fieldElement
+	 * @param parentObj The object to which the field belongs
+	 * @param field The field object representing the primitive field
+	 * @param fieldElement A generic Element representing a field
 	 */
 	public void serializePrimitive(Object parentObj, Field field, Element fieldElement)
 	{		
@@ -259,10 +277,14 @@ public class Serializer {
 	}
 	
 	/**
+	 * serializeCollection in the future will take in an Object that represents a collection and serialize
+	 * the elements of the collection.
 	 * 
-	 * @param parentObj
-	 * @param field
-	 * @param root
+	 * Currently not implemented
+	 * 
+	 * @param parentObj the Object to which the field representing the collection belongs
+	 * @param field the Field Object that represents the Collection
+	 * @param root The root Element of the to which content of the serialized Collection will belong to
 	 */
 	@SuppressWarnings("unused")
 	private void serializeCollection(Object parentObj, Field field, Element root) 
@@ -271,8 +293,10 @@ public class Serializer {
 	}
 	
 	/**
+	 * writeXML takes in a Document and a path and attempts to write the XML that represents the Document to file.
 	 * 
-	 * @param doc
+	 * @param doc The Document object for which the XML is desired
+	 * @param strPath A fully qualified string representation of the desired file location
 	 */
 	public void writeXML(Document doc, String strPath)
 	{
@@ -296,14 +320,13 @@ public class Serializer {
 	}
 	
 	/**
-	 * 
-	 * @param doc
-	 * @return
+	 * documentToString takes in a JDOM Document and returns the XML String representation of the Document
+	 * @param doc The Document for which the XML is desired
+	 * @return a string representation of the XML of the Document object
 	 */
 	public static String documentToString(Document doc)
 	{
 		XMLOutputter outputter = new XMLOutputter();
-		outputter.setFormat(Format.getPrettyFormat());
 		return outputter.outputString(doc);
 	}
 

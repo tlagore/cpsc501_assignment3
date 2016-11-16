@@ -41,7 +41,7 @@ public class ObjectSerializerClient {
 		Integer choice;
 		
 		_MainMenu = new Menu("Welcome to the Object Serializer. Please choose an object to instantiate", System.in, System.out);
-		initializeMenu(classes, _MainMenu);
+		initializeMenu(classes, _MainMenu, "Exit");
 		
 		_MainMenu.displayTitle();
 		choice = getMenuOption(_MainMenu, "");
@@ -53,11 +53,16 @@ public class ObjectSerializerClient {
 			Serializer serializer = new Serializer();
 			Document doc = serializer.serialize(objHandler.getRootObject());
 			
-			//String path = getLine("Enter an absolute file path to save serialized object: ", "");
-			//serializer.writeXML(doc, path);
+			if(getYesNo("SerializeObject? (y/n): ", "") == 'Y')
+			{
+				String host = getLine("Please enter a host to connect to: ", "");
+				Integer port = getInt("Please enter a port to connect to: ", "");
+				
+				sendDocument(doc, host, port);
+			}else
+				System.out.println();
 			
-			sendDocument(doc);
-			
+			System.out.println("Would you like to serialize another object?");
 			_MainMenu.displayTitle();
 			choice = getMenuOption(_MainMenu, "");
 		}
@@ -72,10 +77,12 @@ public class ObjectSerializerClient {
 	 * 
 	 * @param doc
 	 */
-	public void sendDocument(Document doc)
+	public void sendDocument(Document doc, String host, Integer port)
 	{
 		try{
-			Socket socket = new Socket("localhost", 2255);
+			Socket socket = new Socket(host, port);
+			
+			System.out.println("Connected to host.");
 			int count;
 			OutputStream outputStream = socket.getOutputStream();
 			
@@ -91,6 +98,7 @@ public class ObjectSerializerClient {
 					outputStream.flush();
 				}
 		
+				System.out.println("Document sent.");
 				inStream.close();
 				outputStream.close();
 				socket.close();
@@ -117,7 +125,7 @@ public class ObjectSerializerClient {
 		Vector<ClassField> fields = objHandler.getFields();
 		Integer choice;
 		
-		initializeMenu(objHandler.getFieldNames(), fieldMenu);
+		initializeMenu(objHandler.getFieldNames(), fieldMenu, "Return");
 		
 		fieldMenu.displayTitle();
 		choice = getMenuOption(fieldMenu, delimiter);
@@ -126,7 +134,7 @@ public class ObjectSerializerClient {
 		{
 			setField(fields.elementAt(choice), delimiter);
 			fieldMenu.clearOptions();
-			initializeMenu(objHandler.getFieldNames(), fieldMenu);
+			initializeMenu(objHandler.getFieldNames(), fieldMenu, "Return");
 		
 			fieldMenu.displayTitle();
 			choice = getMenuOption(fieldMenu, delimiter);
@@ -454,13 +462,13 @@ public class ObjectSerializerClient {
 	 * @param options
 	 * @param menu
 	 */
-	public void initializeMenu(String[] options, Menu menu){
+	public void initializeMenu(String[] options, Menu menu, String cancelOption){
 		int i;
 		
 		for (i = 0; i < options.length; i++)
 			menu.addOption(i, options[i]);
 		
-		menu.addOption(i, "Exit");
+		menu.addOption(i, cancelOption);
 		menu.setCancelOption(i);
 	}
 

@@ -123,7 +123,7 @@ public class ObjectHandler {
 	 * @param str The object.getClass().getName() representation of an array object without leading '['
 	 * @return a readable type of the array
 	 */
-	public String getArrayType(String str)
+	public static String getArrayType(String str)
 	{
 		String type = "";
 		
@@ -269,9 +269,7 @@ public class ObjectHandler {
 					
 				}else
 					fieldNames[i] += " = " + obj.hashCode();
-			}
-			
-			
+			}	
 		}
 		
 		return fieldNames;

@@ -16,44 +16,46 @@ public class SerializerTests {
 
 	@Test
 	public void testSerializePrimitive() {
-//		Serializer serializer = new Serializer();
-//		Document doc;
-//		String[] variables = new String[]{"hello", "ch", "bool"};
-//		String[] values = new String[]{"2", "c", "true"};
-//		
-//		try{
-//			doc = serializer.serialize((Object) new classes.ClassD());
-//			
-//			List<Element> els = doc.getRootElement().getChildren();
-//			
-//			for(int i = 0; i < els.size(); i++)
-//			{
-//				//ensure class is right declaring class
-//				Attribute at = els.get(i).getAttribute("declaringclass");
-//				assertEquals(at.getValue(), "classes.ClassD");
-//				
-//				//ensure attribute name matches one of possible variable names
-//				Attribute atName = els.get(i).getAttribute("name");
-//				boolean inValues = false;
-//				for(int j = 0; j < variables.length; j++)
-//				{
-//					if(atName.getValue().compareTo(variables[j]) == 0)
-//					{
-//						//when match is found, ensure proper value of attribute
-//						inValues = true;
-//						assertEquals(els.get(i).getValue().compareTo(values[j]) == 0, true);
-//					}
-//				}
-//				assertEquals(inValues, true);
-//			}
-//			
-//		}catch(Exception ex)
-//		{
-//			fail("Should instantiate");
-//		}
+		Serializer serializer = new Serializer();
+		Document serializedDoc = serializer.serialize((Object)new classes.ClassA());
 		
-
+		Element rootElement = serializedDoc.getRootElement();
+		List<Element> children = rootElement.getChildren();
 		
+		Element thisEl = children.get(0);
+		assertEquals(thisEl.getName().compareTo("object") == 0, true);
+		assertEquals(thisEl.getAttributeValue("class").compareTo("classes.ClassA") == 0, true);
+		
+		List<Element> thisElChildren = thisEl.getChildren();
+		thisEl = thisElChildren.get(0);
+		assertEquals(thisEl.getName().compareTo("field") == 0, true);
+		assertEquals(thisEl.getAttributeValue("name").compareTo("boolVar") == 0, true);
+		assertEquals(thisEl.getAttributeValue("declaringclass").compareTo("classes.ClassA") == 0, true);
+		
+		thisEl = thisElChildren.get(1);
+		assertEquals(thisEl.getName().compareTo("field") == 0, true);
+		assertEquals(thisEl.getAttributeValue("name").compareTo("thing") == 0, true);
+		assertEquals(thisEl.getAttributeValue("declaringclass").compareTo("classes.ClassA") == 0, true);
+		
+		thisEl = thisElChildren.get(2);
+		assertEquals(thisEl.getName().compareTo("field") == 0, true);
+		assertEquals(thisEl.getAttributeValue("name").compareTo("type") == 0, true);
+		assertEquals(thisEl.getAttributeValue("declaringclass").compareTo("classes.ClassA") == 0, true);
+		
+		thisEl = thisElChildren.get(3);
+		assertEquals(thisEl.getName().compareTo("field") == 0, true);
+		assertEquals(thisEl.getAttributeValue("name").compareTo("arr") == 0, true);
+		assertEquals(thisEl.getAttributeValue("declaringclass").compareTo("classes.ClassA") == 0, true);
+		
+		thisEl = thisElChildren.get(4);
+		assertEquals(thisEl.getName().compareTo("field") == 0, true);
+		assertEquals(thisEl.getAttributeValue("name").compareTo("objArr") == 0, true);
+		assertEquals(thisEl.getAttributeValue("declaringclass").compareTo("classes.ClassA") == 0, true);
+	
+		thisEl = children.get(1);
+		assertEquals(thisEl.getName().compareTo("object") == 0, true);
+		assertEquals(thisEl.getAttributeValue("class").compareTo("[Lclasses.ClassC;") == 0, true);
+		assertEquals(thisEl.getAttributeValue("size").compareTo("2") == 0, true);
 	}
 
 }
