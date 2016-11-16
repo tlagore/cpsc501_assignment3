@@ -1,9 +1,13 @@
 package serializer;
 
 import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.IdentityHashMap;
 import java.util.Vector;
 
@@ -32,8 +36,6 @@ public class Serializer {
 		Document doc = new Document(serialized);
 		
 		serializeObject(obj, doc.getRootElement(), doc);
-		
-		writeXML(doc);
 		
 		return doc;
 	}
@@ -271,15 +273,27 @@ public class Serializer {
 	 * 
 	 * @param doc
 	 */
-	public void writeXML(Document doc)
+	public void writeXML(Document doc, String strPath)
 	{
-		XMLOutputter xmlOutput = new XMLOutputter();
-		xmlOutput.setFormat(Format.getPrettyFormat());
-		try{
-			xmlOutput.output(doc, new FileWriter("C:\\Users\\Tyrone\\Desktop\\test.xml"));
-		}catch(Exception ex)
+		Path path = Paths.get(strPath);
+		
+		if(!Files.exists(path))
 		{
-			System.out.println(ex.getMessage());
+			try{
+				Files.createDirectories(path);
+				XMLOutputter xmlOutput = new XMLOutputter();
+				xmlOutput.setFormat(Format.getPrettyFormat());
+				
+				try{
+					xmlOutput.output(doc, new FileWriter(strPath));
+				}catch(Exception ex)
+				{
+					System.out.println(ex.getMessage());
+				}
+			}catch(IOException ex)
+			{
+				System.out.println("Error creating catalog directory.  Error:" + ex.getMessage() + ". Reopening this application will create new catalog.");
+			}
 		}
 	}
 

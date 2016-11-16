@@ -1,9 +1,15 @@
 package client;
 
+import java.io.DataOutputStream;
+import java.io.InputStream;
+import java.io.PrintWriter;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.net.Socket;
 import java.util.Scanner;
 import java.util.Vector;
+
+import org.jdom2.Document;
 
 import serializer.ArrayField;
 import serializer.ClassField;
@@ -41,10 +47,14 @@ public class ObjectSerializerClient {
 			instantiateObjectFields(objHandler, DELIMITER);
 			
 			Serializer serializer = new Serializer();
-			serializer.serialize(objHandler.getRootObject());
-			//serializer.serialize((Object)new ClassB());
-			//TODO serialize and send
-
+			Document doc = serializer.serialize(objHandler.getRootObject());
+			
+			String path = getLine("Enter an absolute file path to save serialized object: ", "");
+			
+			serializer.writeXML(doc, path);
+			
+			//sendDocument(doc);
+			
 			_MainMenu.displayTitle();
 			choice = getMenuOption(_MainMenu, "");
 		}
@@ -53,6 +63,40 @@ public class ObjectSerializerClient {
 		System.out.println("Press any key to exit");
 		keyboard.nextLine();
 		keyboard.close();
+	}
+	
+	/**
+	 * 
+	 * @param doc
+	 */
+	public void sendDocument(Document doc)
+	{
+		try{
+			Socket socket = new Socket("localhost", 2255);
+			InputStream inputStream;
+			PrintWriter outputStream;
+			
+			try{
+				outputStream = new PrintWriter(new DataOutputStream(socket.getOutputStream()));
+				inputStream = socket.getInputStream();
+				
+				outputStream.println("GET path HTTP/1.0");
+				outputStream.println("butts butts butts");
+				outputStream.flush();
+				
+				outputStream.close();
+				inputStream.close();
+				socket.close();
+				System.out.println();
+				Thread.sleep(2000);
+			}catch (Exception ex)
+			{
+				System.out.println("Explosion... " + ex.getMessage());
+			}
+		}catch(Exception ex)
+		{
+			System.out.println("Explosion..." + ex.getMessage());
+		}
 	}
 	
 	/**
