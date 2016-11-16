@@ -3,8 +3,8 @@ package classes;
 import java.util.List;
 
 public class ClassB{
-	private ClassA classA;
-	private boolean isInt;
-	private int myInt;
-	private List<String> list;
+	private ClassA classA = new ClassA();
+	private boolean isInt = false;
+	private int myInt = 4;
+	private int [][] intArr = new int[][] { {3, 2, 1}, {1, 2, 3} };
 }

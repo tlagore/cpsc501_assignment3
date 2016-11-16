@@ -41,6 +41,7 @@ public class ObjectSerializerClient {
 			instantiateObjectFields(objHandler, DELIMITER);
 			
 			Serializer serializer = new Serializer();
+			//serializer.serialize((Object)new ClassB());
 			//TODO serialize and send
 
 			_MainMenu.displayTitle();

@@ -3,8 +3,8 @@ package classes;
 
 public class ClassA {
 	private boolean boolVar;
-	private int thing;
-	private char type;
+	private int thing = 42;
+	private char type = 'c';
 	private int[][][] arr;
-	private ClassA[] objArr;
+	private ClassC[] objArr = new ClassC[] { new ClassC(), new ClassC() };
 }

@@ -19,17 +19,12 @@ public class SerializerTests {
 	@Test
 	public void testSerializePrimitive() {
 		Serializer serializer = new Serializer();
-		Document doc = new Document(new Element("serialized"));
+		Document doc;
 		String[] variables = new String[]{"hello", "ch", "bool"};
 		String[] values = new String[]{"2", "c", "true"};
 		
 		try{
-			ObjectHandler objHandler = new ObjectHandler("classes.ClassD");
-
-			for(int i = 0; i < objHandler.getFields().size(); i++)
-			{
-				serializer.serializePrimitive(objHandler.getFields().elementAt(i).getParentObject(), objHandler.getFields().elementAt(i).getField(), doc);
-			}
+			doc = serializer.serialize((Object) new classes.ClassD());
 			
 			List<Element> els = doc.getRootElement().getChildren();
 			
