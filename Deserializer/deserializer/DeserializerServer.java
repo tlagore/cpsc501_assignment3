@@ -75,7 +75,10 @@ public class DeserializerServer extends Thread{
 				Document doc = saxBuilder.build(new StringReader(docString));
 				
 				Deserializer deserializer = new Deserializer();
-				deserializer.deserialize(doc);
+				Object obj = deserializer.deserialize(doc);
+				
+				Inspector insp = new Inspector();
+				insp.inspect(obj, false);
 			}catch(JDOMException ex)
 			{
 				System.out.println("JDOMException: " + ex.getMessage());

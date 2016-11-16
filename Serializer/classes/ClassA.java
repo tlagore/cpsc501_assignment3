@@ -1,6 +1,11 @@
 package classes;
 
 public class ClassA {
+	public ClassA()
+	{
+		
+	}
+	
 	private boolean boolVar;
 	private int thing = 42;
 	private char type = 'c';

@@ -1,6 +1,11 @@
 package classes;
 
 public class ClassB{
+	public ClassB()
+	{
+		
+	}
+	
 	private ClassA classA = new ClassA();
 	private boolean isInt = false;
 	private int myInt = 4;
