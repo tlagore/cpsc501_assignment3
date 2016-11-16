@@ -220,10 +220,11 @@ public class Serializer {
 	}
 	
 	/**
+	 * Gets a field element with properly set name and declaringclass attributes based on the object and field passed in.
 	 * 
-	 * @param obj
-	 * @param field
-	 * @return
+	 * @param obj The object to which the field belongs
+	 * @param field The field being represented by the returned Element object
+	 * @return an Element with properly set attributes
 	 */
 	public Element getFieldElement(Object obj, Field field)
 	{
@@ -260,6 +261,7 @@ public class Serializer {
 	 * @param field
 	 * @param root
 	 */
+	@SuppressWarnings("unused")
 	private void serializeCollection(Object parentObj, Field field, Element root) 
 	{
 		// TODO Auto-generated method stub

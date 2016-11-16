@@ -41,6 +41,7 @@ public class ObjectSerializerClient {
 			instantiateObjectFields(objHandler, DELIMITER);
 			
 			Serializer serializer = new Serializer();
+			serializer.serialize(objHandler.getRootObject());
 			//serializer.serialize((Object)new ClassB());
 			//TODO serialize and send
 
@@ -100,7 +101,7 @@ public class ObjectSerializerClient {
 				createArray(classField.getParentObject(), classField.getField(), delimiter);
 			}else
 			{
-				fillArray(classField.getParentObject(), delimiter);
+				fillArray(obj, delimiter);
 			}	
 		}else if(classField instanceof ObjectField){			
 			//if object has not been initialize yet, create new object
@@ -419,6 +420,7 @@ public class ObjectSerializerClient {
 	 * @param message
 	 * @return
 	 */
+	@SuppressWarnings("resource")
 	public Integer getInt(String message, String delimiter)
 	{
 		Scanner keyboard = new Scanner(System.in);
@@ -437,7 +439,7 @@ public class ObjectSerializerClient {
 			}
 		}while(choice == -1);
 		
-		//keyboard.close();
+		//keyboard is not closed because it is used in the menu system, closing System.in will crash the program
 		
 		return choice;
 	}
@@ -448,6 +450,7 @@ public class ObjectSerializerClient {
 	 * @param message
 	 * @return
 	 */
+	@SuppressWarnings("resource")
 	public Character getYesNo(String message, String delimiter)
 	{
 		Scanner keyboard = new Scanner(System.in);
@@ -465,17 +468,20 @@ public class ObjectSerializerClient {
 
 		}while(choice == 'x');
 		
-		//keyboard.close();
+		//keyboard is not closed because it is used in the menu system, closing System.in will crash the program
 		
 		return choice;
 	}
 	
+	@SuppressWarnings("resource")
 	public String getLine(String message, String delimiter)
 	{
 		Scanner keyboard = new Scanner(System.in);
 
 		System.out.print(delimiter + message);
 		String input = keyboard.nextLine();
+		
+		//keyboard is not closed because it is used in the menu system, closing System.in will crash the program
 
 		return input;
 	}

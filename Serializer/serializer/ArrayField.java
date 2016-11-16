@@ -3,7 +3,6 @@ package serializer;
 import java.lang.reflect.Field;
 
 public class ArrayField extends ClassField {
-	private Class _InnerType;
 	
 	public ArrayField(Object parentObject, Field field, boolean inherited)
 	{

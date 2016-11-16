@@ -1,7 +1,5 @@
 package classes;
 
-import java.util.List;
-
 public class ClassB{
 	private ClassA classA = new ClassA();
 	private boolean isInt = false;

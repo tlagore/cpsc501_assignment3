@@ -3,7 +3,6 @@ package serializer_tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.jdom2.Attribute;
@@ -11,7 +10,6 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.junit.Test;
 
-import serializer.ObjectHandler;
 import serializer.Serializer;
 
 public class SerializerTests {
