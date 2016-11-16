@@ -10,13 +10,24 @@ import java.util.List;
 import org.jdom2.Document;
 import org.jdom2.Element;
 
+/**
+ * Deserializer handles receiving JDOM Documents representing serialized objects serialized by the Serializer class and 
+ * returns the Object represented by the Document.
+ * 
+ * @author Tyrone Lagore
+ *
+ */
 public class Deserializer {
 	private HashMap<Integer, Object> _DeserializedObjects;
 	private Object _RootObject;
 	
+	/**
+	 * default and only constructor for Deserializer
+	 */
 	public Deserializer()
 	{
 		_DeserializedObjects = new HashMap<Integer,Object>();
+		_RootObject = null;
 	}
 	
 	/**
@@ -31,17 +42,21 @@ public class Deserializer {
 	 */
 	public Object deserialize(Document doc)
 	{
-		Element rootElement = doc.getRootElement();
-		List<Element> children = rootElement.getChildren();
-		
-		_RootObject = getObjectFromElement(children.get(0));	
-		if (_RootObject != null)
+		try{
+			Element rootElement = doc.getRootElement();
+			List<Element> children = rootElement.getChildren();
+			
+			_RootObject = getObjectFromElement(children.get(0));	
+			if (_RootObject != null)
+			{
+				_DeserializedObjects.put(Integer.valueOf(children.get(0).getAttributeValue("id")), _RootObject);
+				populateObjects(children, 1);
+				resolveReferences(children);
+			}
+		}catch(Exception ex)
 		{
-			_DeserializedObjects.put(Integer.valueOf(children.get(0).getAttributeValue("id")), _RootObject);
-			populateObjects(children, 1);
-			resolveReferences(children);
+			System.out.println("General exception caught: " + ex.getMessage() + " " + ex.getCause());
 		}
-		
 		return _RootObject;
 	}
 	
@@ -92,13 +107,18 @@ public class Deserializer {
 	}
 	
 	/**
-	 * resolvePrimitive array takes in an object ID representing an array object 
+	 * resolvePrimitiveArray takes in an object ID representing an array object and the children of the Element 
+	 * that represented the Array Object and sets each element of the array to the value of the child value.
 	 * 
-	 * @param children
-	 * @param objId
+	 * this function assumes that the objId belongs to the Element to which the children belong and that the array
+	 * object itself has already been deserialized. Additionally, it assumes that the represented array is a primitive array.
+	 * 
+	 * @param children The children of an Element array representing a deserialized Primitive Array object
+	 * @param objId The ID attribute of the Element that represented array object
 	 */
 	public void resolvePrimitiveArray(List<Element> children, Integer objId)
 	{
+		
 		Object array = _DeserializedObjects.get(objId);
 		Element indexElement;
 		String value;
@@ -117,9 +137,15 @@ public class Deserializer {
 	}
 	
 	/**
+	 * resolveObjectArray takes in an object ID representing an array object and the children of the Element 
+	 * that represented the Array Object and sets each element of the array to the REFERENCE value of the child value.
 	 * 
-	 * @param children
-	 * @param objId
+	 * this function assumes that the objId belongs to the Element to which the children belong and that the array
+	 * object itself has already been deserialized. Additionally, it assumes that the REFERENCE specified by the child
+	 * element has also been deserialized.
+	 * 
+	 * @param children The children of an Element array representing a deserialized Object Array object
+	 * @param objId The ID attribute of the Element that represented array object
 	 */
 	public void resolveObjectArray(List<Element> children, Integer objId)
 	{
