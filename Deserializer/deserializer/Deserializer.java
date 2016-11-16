@@ -19,6 +19,16 @@ public class Deserializer {
 		_DeserializedObjects = new HashMap<Integer,Object>();
 	}
 	
+	/**
+	 * deserialize takes in jdom Document and returns the deserialized object that it represents.
+	 * 
+	 * deserialize assumes that the first element of the children represents the root object.
+	 * 
+	 * deserialize cannot handle Collection 
+	 * 
+	 * @param doc The Document representing the serialized object
+	 * @return the deserialized object
+	 */
 	public Object deserialize(Document doc)
 	{
 		Element rootElement = doc.getRootElement();
@@ -29,48 +39,60 @@ public class Deserializer {
 		{
 			_DeserializedObjects.put(Integer.valueOf(children.get(0).getAttributeValue("id")), _RootObject);
 			populateObjects(children, 1);
-			resolveReferences(children, 0);
+			resolveReferences(children);
 		}
 		
 		return _RootObject;
 	}
 	
-	public void resolveReferences(List<Element> elements, int startingIndex)
+	/**
+	 * resolveReferences takes in a list of child elements and resolves their references by iterating through
+	 * the elements inner children.
+	 * 
+	 * resolveReferences assumes that the inner objects of the serialized document have already been individually
+	 * deserialized by running "populateObjects", however will not run unless at least one object has been deserialized.
+	 * 
+	 * @param elements The children elements of a Document representing a serialized object.
+	 */
+	public void resolveReferences(List<Element> elements)
 	{
 		Element curElement;
 		Element curField;
 		List<Element> curElementChildren;
 		
 		Integer objId;
-		 
-		for(int i = startingIndex; i < elements.size(); i++)
-		{
-			curElement = elements.get(i);
-			curElementChildren = curElement.getChildren();
-			objId = Integer.valueOf(curElement.getAttributeValue("id"));
-			
-			for(int j = 0; j < curElementChildren.size(); j++)
+		if(_DeserializedObjects.size() != 0){
+			for(int i = 0; i < elements.size(); i++)
 			{
-				curField = curElementChildren.get(j);
+				curElement = elements.get(i);
+				curElementChildren = curElement.getChildren();
+				objId = Integer.valueOf(curElement.getAttributeValue("id"));
 				
-				if (curField.getName().compareTo("field") == 0)
+				for(int j = 0; j < curElementChildren.size(); j++)
 				{
-					resolveField(curField, objId);
-				}else
-				{
-					if(curField.getName().compareTo("value") == 0)
+					curField = curElementChildren.get(j);
+					
+					if (curField.getName().compareTo("field") == 0)
 					{
-						resolvePrimitiveArray(curElementChildren, objId);
+						resolveField(curField, objId);
 					}else
 					{
-						resolveObjectArray(curElementChildren, objId);
-					}	
+						if(curField.getName().compareTo("value") == 0)
+						{
+							resolvePrimitiveArray(curElementChildren, objId);
+						}else
+						{
+							resolveObjectArray(curElementChildren, objId);
+						}	
+					}
 				}
 			}
-		}
+		}else
+			System.out.println("No deserialized objects to resolve references. Run populateObjects(List<Children>, startingIndex) first.");
 	}
 	
 	/**
+	 * resolvePrimitive array takes in an object ID representing an array object 
 	 * 
 	 * @param children
 	 * @param objId
@@ -81,13 +103,17 @@ public class Deserializer {
 		Element indexElement;
 		String value;
 		
-		for (int i = 0; i < children.size(); i++)
+		if (array.getClass().isArray())
 		{
-			indexElement = children.get(i);
-			value = indexElement.getText();
-			
-			Array.set(array, i, getPrimitiveObject(array.getClass().getComponentType().getName(), value));
-		}
+			for (int i = 0; i < children.size(); i++)
+			{
+				indexElement = children.get(i);
+				value = indexElement.getText();
+				
+				Array.set(array, i, getPrimitiveObject(array.getClass().getComponentType().getName(), value));
+			}
+		}else
+			System.out.println("Object is not an array. Use resolveField or check document format.");
 	}
 	
 	/**
@@ -101,13 +127,17 @@ public class Deserializer {
 		Element indexElement;
 		String reference;
 		
-		for (int i = 0; i < children.size(); i++)
+		if(array.getClass().isArray())
 		{
-			indexElement = children.get(i);
-			reference = indexElement.getText();
-			
-			Array.set(array, i, _DeserializedObjects.get(Integer.valueOf(reference)));
-		}
+			for (int i = 0; i < children.size(); i++)
+			{
+				indexElement = children.get(i);
+				reference = indexElement.getText();
+				
+				Array.set(array, i, _DeserializedObjects.get(Integer.valueOf(reference)));
+			}
+		}else
+			System.out.println("Object is not an array. Use resolveField or check document format.");
 	}
 	
 	/**
