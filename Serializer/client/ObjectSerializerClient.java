@@ -1,7 +1,11 @@
 package client;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.DataOutputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -49,11 +53,10 @@ public class ObjectSerializerClient {
 			Serializer serializer = new Serializer();
 			Document doc = serializer.serialize(objHandler.getRootObject());
 			
-			String path = getLine("Enter an absolute file path to save serialized object: ", "");
+			//String path = getLine("Enter an absolute file path to save serialized object: ", "");
+			//serializer.writeXML(doc, path);
 			
-			serializer.writeXML(doc, path);
-			
-			//sendDocument(doc);
+			sendDocument(doc);
 			
 			_MainMenu.displayTitle();
 			choice = getMenuOption(_MainMenu, "");
@@ -73,22 +76,24 @@ public class ObjectSerializerClient {
 	{
 		try{
 			Socket socket = new Socket("localhost", 2255);
-			InputStream inputStream;
-			PrintWriter outputStream;
+			int count;
+			OutputStream outputStream = socket.getOutputStream();
+			
+			String xmlOutput = Serializer.documentToString(doc);
+			byte[] buffer = new byte[xmlOutput.length()];
+			
+			BufferedInputStream inStream = new BufferedInputStream(new ByteArrayInputStream(xmlOutput.getBytes()));
 			
 			try{
-				outputStream = new PrintWriter(new DataOutputStream(socket.getOutputStream()));
-				inputStream = socket.getInputStream();
-				
-				outputStream.println("GET path HTTP/1.0");
-				outputStream.println("butts butts butts");
-				outputStream.flush();
-				
+				while ((count = inStream.read(buffer)) > 0)
+				{
+					outputStream.write(buffer, 0, count);
+					outputStream.flush();
+				}
+		
+				inStream.close();
 				outputStream.close();
-				inputStream.close();
 				socket.close();
-				System.out.println();
-				Thread.sleep(2000);
 			}catch (Exception ex)
 			{
 				System.out.println("Explosion... " + ex.getMessage());

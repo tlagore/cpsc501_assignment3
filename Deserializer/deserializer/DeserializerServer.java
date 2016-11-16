@@ -1,34 +1,32 @@
 package deserializer;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringReader;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+
+import org.jdom2.Document;
+import org.jdom2.JDOMException;
+import org.jdom2.input.SAXBuilder;
 
 /**
- * WebServer takes in a port number and creates a ServerSocket on that port. It then waits in a loop
- * for HTTP requests. When it receives a socket connection, it creates a WebWorker thread to handle
- * the command and goes back to listening.
- * <p>
- * shutdown() can be called to terminate the WebServer loop.
- * 
  * @author Tyrone Lagore
  */
-public class DeserializerServer extends Thread {
+public class DeserializerServer extends Thread{
+	private final int MAX_IN_SIZE = 10*1024;
 	
-	//Thread throttle. Allow 15 threads at one time to be executing, rest are placed in a queue by ExecutorService
-	private final int MAX_THREADS = 15;
-	private boolean _Shutdown;
 	private ServerSocket _ServerSocket;
-	
-	//Handles thread execution
-	private ExecutorService _ExecutorService;
-	
+	private boolean _Shutdown;
+
 	public DeserializerServer(int port){
-		_Shutdown = false;
-		_ExecutorService = Executors.newFixedThreadPool(MAX_THREADS);
 		try {
+			_Shutdown = false;
 			_ServerSocket = new ServerSocket(port);
 		}catch(IOException ex)
 		{
@@ -47,13 +45,84 @@ public class DeserializerServer extends Thread {
 			{
 				Socket socket = _ServerSocket.accept();
 				System.out.println("Acquired connection.");
-				_ExecutorService.execute(new WebWorker(socket));
+				readSocket(socket);
 			}
 		}catch(IOException ex)
 		{
 			System.out.println("Server: " + ex.getMessage());
 		}
-		System.out.println("Server: Server has shut down. Remaining threads will shutdown shortly.");
+		System.out.println("Server: Server has shut down.");
+	}
+	
+	public void readSocket(Socket socket)
+	{
+		PrintWriter outputStream;
+		byte[] input = new byte[MAX_IN_SIZE];
+		String docString = "";
+		int amountRead;
+		
+		try{
+			outputStream = new PrintWriter(new DataOutputStream(socket.getOutputStream()));
+			
+			amountRead = socket.getInputStream().read(input);
+			
+			docString = extractStringFromByte(input);
+			
+			System.out.println(docString);
+			
+			try{
+				SAXBuilder saxBuilder = new SAXBuilder();
+				Document doc = saxBuilder.build(new StringReader(docString));
+				
+				Deserializer deserializer = new Deserializer();
+				deserializer.deserialize(doc);
+			}catch(JDOMException ex)
+			{
+				System.out.println("JDOMException: " + ex.getMessage());
+			}catch(IOException ex)
+			{
+				System.out.println("IOException: " + ex.getMessage());
+			}
+			
+			outputStream.close();
+			socket.close();
+			System.out.println();
+		}catch(IOException ex)
+		{
+			System.out.println("Error: " + ex.getMessage());
+		}		
+	}
+	
+	/**
+	 * extractStringFromByte extracts the contents of a byte array into a string. The command is assumed to be delimited by 
+	 * new line characters.
+	 * 
+	 * The characters of the array are *not* checked to ensure that they are String compatible characters.
+	 * 
+	 * @param data the byte array holding the command
+	 * @return a String representation of the byte array
+	 */
+	private String extractStringFromByte(byte[] data)
+	{
+		String command = "";
+		String line;
+		InputStream inputStream = new ByteArrayInputStream(data);
+		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+		
+		try
+		{
+			line = reader.readLine();
+			while (line != null && !line.isEmpty())
+			{
+				command += line;
+				line  = reader.readLine();
+			}
+		}catch(IOException ex)
+		{
+			System.out.println("Error: " + ex.getMessage());
+		}
+		
+		return command.trim();
 	}
 	
 	/**
@@ -63,15 +132,12 @@ public class DeserializerServer extends Thread {
 	public void shutdown(){
 		System.out.println("Server: Received shutdown request, shutting down...");
 		try{
-			_ExecutorService.shutdownNow();
-			System.out.println("Server: Sent shutdown quests to all threads.");
+			_Shutdown = true;
 			_ServerSocket.close();
 		}catch(IOException ex)
 		{
 			System.out.println("Server: Error closing socket: " + ex.getMessage());
 		}
-		
-		_Shutdown = true;
 	}
 
 }

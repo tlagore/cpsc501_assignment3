@@ -1,5 +1,6 @@
 package serializer;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Array;
@@ -276,25 +277,33 @@ public class Serializer {
 	public void writeXML(Document doc, String strPath)
 	{
 		Path path = Paths.get(strPath);
+		File file = new File(strPath);
 		
 		if(!Files.exists(path))
 		{
+			file.getParentFile().mkdirs();
+
+			XMLOutputter xmlOutput = new XMLOutputter();
+			xmlOutput.setFormat(Format.getPrettyFormat());
+			
 			try{
-				Files.createDirectories(path);
-				XMLOutputter xmlOutput = new XMLOutputter();
-				xmlOutput.setFormat(Format.getPrettyFormat());
-				
-				try{
-					xmlOutput.output(doc, new FileWriter(strPath));
-				}catch(Exception ex)
-				{
-					System.out.println(ex.getMessage());
-				}
-			}catch(IOException ex)
+				xmlOutput.output(doc, new FileWriter(strPath));
+			}catch(Exception ex)
 			{
-				System.out.println("Error creating catalog directory.  Error:" + ex.getMessage() + ". Reopening this application will create new catalog.");
+				System.out.println(ex.getMessage());
 			}
 		}
+	}
+	
+	/**
+	 * 
+	 * @param doc
+	 * @return
+	 */
+	public static String documentToString(Document doc)
+	{
+		XMLOutputter outputter = new XMLOutputter();
+		return outputter.outputString(doc);
 	}
 
 
