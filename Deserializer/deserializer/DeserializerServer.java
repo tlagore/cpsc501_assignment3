@@ -78,7 +78,7 @@ public class DeserializerServer extends Thread{
 				Object obj = deserializer.deserialize(doc);
 				
 				Inspector insp = new Inspector();
-				insp.inspect(obj, false);
+				insp.inspect(obj, true);
 			}catch(JDOMException ex)
 			{
 				System.out.println("JDOMException: " + ex.getMessage());
